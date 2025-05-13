@@ -1,0 +1,1 @@
+pytest tests/test_app.py

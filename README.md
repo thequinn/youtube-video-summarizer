@@ -65,3 +65,39 @@ source my-env/bin/activate
 python3 app.py
 
 3. Open your browser to access either one.
+
+> > Running tests
+
+# Run all tests
+
+pytest
+
+# Run with verbose output
+
+pytest -v
+
+# Run only unit tests (skip integration tests)
+
+pytest -m "not integration"
+
+# Run only integration tests (skip unit tests)
+
+pytest -m "integration"
+
+# Run with coverage report
+
+pytest --cov=tools --cov=app --cov-report=term-missing
+
+# Run a specific test file, -v for verbose
+
+pytest tests/test_tools.py -v
+
+Best Practices for Testing This Project
+
+- Mock External Dependencies: Always mock YouTube API and OpenAI API calls
+- Test File Operations: Use tmp_path fixture for file operations
+- Parameterize Tests: Use @pytest.mark.parametrize for testing different bullet point counts
+- Test Error Handling: Ensure your app gracefully handles errors
+- Separate Unit and Integration Tests: Use markers to separate test types
+- Test UI Components: Test Gradio components where possible
+- Use Coverage Reports: Aim for high test coverage of your core functions
