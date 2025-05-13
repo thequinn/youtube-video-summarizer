@@ -1,6 +1,6 @@
 import gradio as gr
 import tools
-
+from datetime import datetime
 
 # Creates a styled title bar section using HTML and CSS
 def create_title_bar(title, description=None):
@@ -25,10 +25,21 @@ def create_title_bar(title, description=None):
     html_content += "</div>"
     return gr.HTML(html_content)
 
-# - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
-# 未... Understand the simiplified code and thhe remove the version in the next section...
+# Create a downloadable text file from the summary
+def create_download_text(summary):
+    if summary and not summary.startswith("Error:"):
 
-def process_inputs_and_summarize(url, manual_transcript, mode):
+        # Return the summary text and a filename
+        #filename =  summary, f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        filename="summary.txt......testing purtpose"
+        return filename
+        #return gr.update(value=(filename), visible=True)
+    
+    return "error occurred, so I set it to this msg...."
+    # return gr.update(visible=False)
+
+# - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
+def process_inputs_and_summarize(url, manual_transcript, bullet_points):
     transcript = None
 
     if url:
@@ -38,43 +49,18 @@ def process_inputs_and_summarize(url, manual_transcript, mode):
     elif manual_transcript:
         transcript = manual_transcript.strip()
     else:
-        return "Error: YouTube URL or Manual Transcript is required."
+        return "Error: YouTube URL or Manual Transcript is required.", None
 
-    mode = 3  # Always summarize with 3 bullet points
+    # Convert bullet_points to integer
+    mode = int(bullet_points)
     summary = tools.summarize(transcript, mode)
     if summary.startswith("Error:"):
-        return summary
-
-    return summary
+        return summary, None
+    
+    #gr.update(value=("testing....."), visible=True)
+    return summary, gr.update(interactive=True)
 
 # - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
-def process_inputs_and_summarize(url, manual_transcript, mode):
-
-    # If both URL and manual transcript are provided, prioritize the URL unless it return error.
-    if url != "" and manual_transcript != "":
-        # Try fetching the transcript from the URL
-        transcript = tools.fetch_transcript(url)
-        if transcript.startswith("Error:"):
-            # If fetching from the URL fails, use the manual transcript
-            transcript = manual_transcript.strip()
-    elif url != "" and manual_transcript == "":
-        transcript = tools.fetch_transcript(url)
-        if transcript.startswith("Error:"):
-            return transcript
-    if url == "" and manual_transcript != "":
-        transcript = manual_transcript.strip()
-    if url == "" and manual_transcript == "":
-        return "Error: YouTube URL or Manual Transcript is required."
-
-    # Summarize the transcript
-    mode = 3  # 3 bullet points
-    summary = tools.summarize(transcript, mode)
-    if summary.startswith("Error:"):
-        return summary  # Return the error message directly to the UI
-
-    return summary
-# - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
-
 
 with gr.Blocks() as app:
     # Styled Title Bar using HTML and CSS
@@ -86,15 +72,36 @@ with gr.Blocks() as app:
     with gr.Group():
         url_input = gr.Textbox(label="Enter YouTube URL")
         manual_transcript_input = gr.Textbox(label="Manual Transcript")
-        output = gr.Textbox(label="Summary")
+        
+        # Add dropdown for number of bullet points
+        bullet_points = gr.Dropdown(
+            choices=["3", "4", "5"],
+            value="3",
+            label="Number of Bullet Points",
+            info="Select how many bullet points you want in the summary"
+        )
+        
+        summary_output = gr.Textbox(label="Summary")
+        filename_output = gr.Textbox(label="Summary Filename")
 
         submit_button = gr.Button("Summarize")
+        download_button = gr.Button(
+            value = "Download Summary as .txt",
+            interactive=False
+        )
+        
         submit_button.click(
             fn=process_inputs_and_summarize,
-            inputs=[url_input, manual_transcript_input],
-            outputs=output,
+            inputs=[url_input, manual_transcript_input, bullet_points],
+            outputs=[summary_output, download_button],
             show_progress=True,
             api_name="summarize",
+        )
+       
+        download_button.click(
+            fn=create_download_text,
+            inputs=[summary_output],
+            outputs=filename_output,
         )
 
 app.launch(share=True)
