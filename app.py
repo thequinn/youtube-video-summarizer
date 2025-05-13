@@ -28,15 +28,13 @@ def create_title_bar(title, description=None):
 # Create a downloadable text file from the summary
 def create_download_text(summary):
     if summary and not summary.startswith("Error:"):
-
-        # Return the summary text and a filename
-        #filename =  summary, f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        filename="summary.txt......testing purtpose"
+        filename =  f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        
+        with open(filename, "w") as f:
+            f.write(summary)      
         return filename
-        #return gr.update(value=(filename), visible=True)
     
     return "error occurred, so I set it to this msg...."
-    # return gr.update(visible=False)
 
 # - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
 def process_inputs_and_summarize(url, manual_transcript, bullet_points):
@@ -82,14 +80,17 @@ with gr.Blocks() as app:
         )
         
         summary_output = gr.Textbox(label="Summary")
-        filename_output = gr.Textbox(label="Summary Filename")
+        #filename_output = gr.Textbox(label="Summary Filename")
 
-        submit_button = gr.Button("Summarize")
-        download_button = gr.Button(
-            value = "Download Summary as .txt",
-            interactive=False
-        )
-        
+        with gr.Row():
+            with gr.Column(scale=1):
+                submit_button = gr.Button("Summarize")
+            with gr.Column(scale=1):
+                download_button = gr.Button(
+                    value = "Download Summary",
+                    interactive=False
+                )
+
         submit_button.click(
             fn=process_inputs_and_summarize,
             inputs=[url_input, manual_transcript_input, bullet_points],
@@ -101,7 +102,7 @@ with gr.Blocks() as app:
         download_button.click(
             fn=create_download_text,
             inputs=[summary_output],
-            outputs=filename_output,
+            outputs=[],
         )
 
-app.launch(share=True)
+app.launch(share=True, debug=False)  

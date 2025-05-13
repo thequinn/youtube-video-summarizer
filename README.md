@@ -3,15 +3,29 @@ title: YouTube Video Summarizer
 app_file: app.py
 ---
 
+YouTube Video Summarizer
+
+This project is a web application that summarizes YouTube videos using AI. Key features:
+
+Takes a YouTube URL or manual transcript as input
+Extracts video transcripts automatically using YouTube's API
+Generates concise summaries with customizable bullet points (3-5)
+Uses OpenRouter API (with Meta's Llama-4-Maverick model) for summarization
+Built with Gradio for the user interface
+Includes download functionality for saving summaries as text files
+Deployed on Hugging Face Spaces
+The app is designed to be simple to use while providing powerful AI-based summarization capabilities for YouTube content.
+
 This app is deployed to Hugging Face Spaces or you can run it locally by following the setup istruction below.
 https://huggingface.co/spaces/sassywizard/youtube-video-summarizer
 
 PRD and Code:
+
 - Will add link from my www.notion.so
 
 Sample transcript for testing:
-- See test_transcript.txt
 
+- See test_transcript.txt
 
 > > Environment setup on Mac
 
@@ -38,7 +52,7 @@ Create a .env and add the following to the file:
 
 OPENROUTER_API_KEY=sk-…
 
-Note: You need to get your own OpenRouter API key. Using this app is free. 
+Note: You need to get your own OpenRouter API key. Using this app is free.
 
 > > Run the app locally and remotely
 
@@ -51,5 +65,3 @@ source my-env/bin/activate
 python3 app.py
 
 3. Open your browser to access either one.
-
-

@@ -12,11 +12,11 @@ client = OpenAI(
     api_key=key,
 )
 
-
 def summarize(prompt: str, mode: str) -> str:
     prompt = (
         "You are a concise assistant.\n"
-        f"Summarize the following transcript in **{mode}**:\n\n"
+        f"Summarize the following transcript in {mode} numbered bullet points.\n"
+        f"Start with '**Your Summary:**' as a header, then list each point with a number.\n\n"
         f"{prompt}\n\n"
         "Only output the summary."
     )
@@ -30,6 +30,7 @@ def summarize(prompt: str, mode: str) -> str:
         messages=[{"role": "user", "content": [{"type": "text", "text": prompt}]}],
     )
 
+    print("completion.choices[0].message.content: ", completion.choices[0].message.content)
     return completion.choices[0].message.content
 
 
@@ -37,12 +38,10 @@ def summarize(prompt: str, mode: str) -> str:
 def fetch_transcript(url: str) -> str:
     # Check if the URL is provided
     if not url.strip():
-        # raise ValueError("Error: YouTube URL is required.")
         return "Error: YouTube URL is required."
 
     # Check if the URL is a valid YouTube URL
     if not re.match(r"^(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+$", url):
-        # raise ValueError("Error: Invalid YouTube URL format.")
         return "Error: Invalid YouTube URL format."
 
     # Extract the video ID from the URL
