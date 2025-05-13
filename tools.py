@@ -1,8 +1,10 @@
-from dotenv import load_dotenv
 import os
-from openai import OpenAI
 import re
+from datetime import datetime        
+from dotenv import load_dotenv
+from openai import OpenAI
 from youtube_transcript_api import YouTubeTranscriptApi
+import gradio as gr
 
 load_dotenv()
 key = os.getenv("OPENROUTER_API_KEY")
@@ -11,6 +13,13 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=key,
 )
+
+# Create a downloadable text file from the summary
+def create_download_text(summary):
+    if summary and not summary.startswith("Error:"):
+        filename =  f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        with open(filename, "w") as f:
+            f.write(summary)  
 
 def summarize(prompt: str, mode: str) -> str:
     prompt = (
@@ -30,7 +39,7 @@ def summarize(prompt: str, mode: str) -> str:
         messages=[{"role": "user", "content": [{"type": "text", "text": prompt}]}],
     )
 
-    print("completion.choices[0].message.content: ", completion.choices[0].message.content)
+    #print("completion.choices[0].message.content: ", completion.choices[0].message.content)
     return completion.choices[0].message.content
 
 
@@ -57,3 +66,27 @@ def fetch_transcript(url: str) -> str:
         return " ".join(seg["text"] for seg in segments)
     except Exception as e:
         return f"Error fetching transcript: {str(e)}"
+    
+
+def process_inputs_and_summarize(url, manual_transcript, bullet_points):
+    transcript = None
+
+    if url:
+        transcript = fetch_transcript(url)
+        if transcript.startswith("Error:") and manual_transcript:
+            transcript = manual_transcript.strip()
+    elif manual_transcript:
+        transcript = manual_transcript.strip()
+        print("transcript: ", transcript)
+    else:
+        return "Error: YouTube URL or Manual Transcript is required.", None
+
+    mode = int(bullet_points)
+    summary = summarize(transcript, mode)
+
+    if summary.startswith("Error:"):
+        return summary, None
+    if summary.startswith("No transcript is provided"):
+        return "Transcript not fetched.  Try again or paste the transcript.", None
+
+    return summary, gr.update(interactive=True)

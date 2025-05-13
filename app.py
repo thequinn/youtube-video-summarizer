@@ -1,6 +1,5 @@
 import gradio as gr
-import tools
-from datetime import datetime
+import tools  # Customized tools
 
 # Creates a styled title bar section using HTML and CSS
 def create_title_bar(title, description=None):
@@ -24,41 +23,6 @@ def create_title_bar(title, description=None):
         """
     html_content += "</div>"
     return gr.HTML(html_content)
-
-# Create a downloadable text file from the summary
-def create_download_text(summary):
-    if summary and not summary.startswith("Error:"):
-        filename =  f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        
-        with open(filename, "w") as f:
-            f.write(summary)      
-        return filename
-    
-    return "error occurred, so I set it to this msg...."
-
-# - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
-def process_inputs_and_summarize(url, manual_transcript, bullet_points):
-    transcript = None
-
-    if url:
-        transcript = tools.fetch_transcript(url)
-        if transcript.startswith("Error:") and manual_transcript:
-            transcript = manual_transcript.strip()
-    elif manual_transcript:
-        transcript = manual_transcript.strip()
-    else:
-        return "Error: YouTube URL or Manual Transcript is required.", None
-
-    # Convert bullet_points to integer
-    mode = int(bullet_points)
-    summary = tools.summarize(transcript, mode)
-    if summary.startswith("Error:"):
-        return summary, None
-    
-    #gr.update(value=("testing....."), visible=True)
-    return summary, gr.update(interactive=True)
-
-# - - - - - - - - - - - - - - #  - - - - - - - - - - - - - - #
 
 with gr.Blocks() as app:
     # Styled Title Bar using HTML and CSS
@@ -92,7 +56,7 @@ with gr.Blocks() as app:
                 )
 
         submit_button.click(
-            fn=process_inputs_and_summarize,
+            fn=tools.process_inputs_and_summarize,
             inputs=[url_input, manual_transcript_input, bullet_points],
             outputs=[summary_output, download_button],
             show_progress=True,
@@ -100,7 +64,7 @@ with gr.Blocks() as app:
         )
        
         download_button.click(
-            fn=create_download_text,
+            fn=tools.create_download_text,
             inputs=[summary_output],
             outputs=[],
         )
