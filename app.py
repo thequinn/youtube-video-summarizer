@@ -71,4 +71,5 @@ with gr.Blocks() as app:
             api_name="create_download_text",
         )
 
-app.launch(share=True, debug=False)  
+if __name__ == "__main__":
+    app.launch(share=True, debug=False)

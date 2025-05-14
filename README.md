@@ -66,6 +66,8 @@ python3 app.py
 
 3. Open your browser to access either one.
 
+# - - - - - - - - - - - - - - -
+
 > > Running tests
 
 # Run all tests
@@ -75,6 +77,8 @@ pytest
 # Run with verbose output
 
 pytest -v
+
+pytest -W ignore::DeprecationWarning
 
 # Run pytest with the duration flag to see which tests are slow:
 
