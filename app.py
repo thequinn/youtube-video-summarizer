@@ -66,7 +66,9 @@ with gr.Blocks() as app:
         download_button.click(
             fn=tools.create_download_text,
             inputs=[summary_output],
-            outputs=[],
+            #outputs=[],
+            show_progress=True,
+            api_name="create_download_text",
         )
 
 app.launch(share=True, debug=False)  

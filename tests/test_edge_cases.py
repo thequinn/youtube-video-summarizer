@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import app
 import tools
 
+@pytest.mark.timeout(30)
 def test_very_long_transcript():
     """Test handling of very long transcripts."""
     long_transcript = "word " * 10000  # Create a very long transcript
@@ -32,6 +33,7 @@ def test_very_long_transcript():
         assert "messages" in call_args
         assert long_transcript in str(call_args["messages"])
 
+@pytest.mark.timeout(30)
 def test_empty_summary_response():
     """Test handling of empty summary from API."""
     with patch('tools.client.chat.completions.create') as mock_create:
@@ -49,6 +51,7 @@ def test_empty_summary_response():
         result = tools.summarize("Test transcript", "3")
         assert result == ""  # Should return empty string, not error
 
+@pytest.mark.timeout(30)
 def test_api_error_handling():
     """Test handling of API errors."""
     with patch('tools.client.chat.completions.create') as mock_create:

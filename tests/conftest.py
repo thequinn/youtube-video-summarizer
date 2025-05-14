@@ -20,3 +20,20 @@ def mock_openai_client(monkeypatch):
     
     monkeypatch.setattr("tools.client", mock_client)
     return mock_client
+
+@pytest.fixture(autouse=True)
+def timeout_for_tests():
+    """Add a timeout to all tests."""
+    import signal
+    
+    def timeout_handler(signum, frame):
+        raise Exception("Test timed out!")
+    
+    # Set a 30-second timeout for each test
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(30)
+    
+    yield
+    
+    # Disable the alarm after the test
+    signal.alarm(0)

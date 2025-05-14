@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import tools
 
 
+@pytest.mark.download
 def test_create_download_text(tmp_path, monkeypatch):
     """Test the create_download_text function."""
     # Change to a temporary directory for the test
@@ -17,22 +18,25 @@ def test_create_download_text(tmp_path, monkeypatch):
     
     # Test with valid summary
     summary = "This is a test summary"
-    filename = tools.create_download_text(summary)
+    tools.create_download_text(summary)
     
-    # Check that the file was created
-    assert filename.startswith("summary_")
-    assert filename.endswith(".txt")
+    # Check that a file was created with the expected naming pattern
+    created_files = list(tmp_path.glob("summary_*.txt"))
+    assert len(created_files) == 1
     
     # Check file contents
-    with open(filename, "r") as f:
+    with open(created_files[0], "r") as f:
         content = f.read()
         assert content == summary
     
     # Test with error summary
     error_summary = "Error: Something went wrong"
-    result = tools.create_download_text(error_summary)
-    assert result is None  # Should return None for error summaries
+    tools.create_download_text(error_summary)
+    
+    # Should still have only one file (error summary shouldn't create a file)
+    assert len(list(tmp_path.glob("summary_*.txt"))) == 1
 
+@pytest.mark.summarize
 def test_summarize(mock_openai_client, sample_transcript):
     """Test the summarize function."""
     # Test with different modes
@@ -44,6 +48,7 @@ def test_summarize(mock_openai_client, sample_transcript):
         # Reset the mock for the next call
         mock_openai_client.reset_mock()
 
+@pytest.mark.fetch
 @patch('tools.YouTubeTranscriptApi.get_transcript')
 def test_fetch_transcript(mock_get_transcript):
     """Test the fetch_transcript function."""
@@ -78,6 +83,7 @@ def test_fetch_transcript(mock_get_transcript):
     result = tools.fetch_transcript(valid_url)
     assert result.startswith("Error fetching transcript")
 
+@pytest.mark.summarize
 def test_process_inputs_and_summarize(monkeypatch, sample_transcript):
     """Test the process_inputs_and_summarize function."""
     # Mock the fetch_transcript and summarize functions
@@ -89,18 +95,19 @@ def test_process_inputs_and_summarize(monkeypatch, sample_transcript):
     def mock_summarize(text, mode):
         return f"**{mode} Key Points:**\n" + "\n".join([f"{i+1}. Point {i+1}" for i in range(int(mode))])
     
+    # During the test, any call to tools.fetch_transcript will instead invoke mock_fetch.
     monkeypatch.setattr("tools.fetch_transcript", mock_fetch)
     monkeypatch.setattr("tools.summarize", mock_summarize)
     
     # Test with valid URL
     summary, button = tools.process_inputs_and_summarize("valid-url", "", "3")
     assert "3 Key Points" in summary
-    assert button.interactive  # Button should be interactive
+    assert button['interactive']  # Button should be interactive
     
     # Test with invalid URL but valid manual transcript
     summary, button = tools.process_inputs_and_summarize("invalid-url", sample_transcript, "4")
     assert "4 Key Points" in summary
-    assert button.interactive
+    assert button['interactive']
     
     # Test with no inputs
     summary, button = tools.process_inputs_and_summarize("", "", "5")

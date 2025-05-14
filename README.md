@@ -76,13 +76,17 @@ pytest
 
 pytest -v
 
+# Run pytest with the duration flag to see which tests are slow:
+
+pytest -v --durations=0
+
 # Run only unit tests (skip integration tests)
 
-pytest -m "not integration"
+pytest -m "not integration" -v
 
 # Run only integration tests (skip unit tests)
 
-pytest -m "integration"
+pytest -m "integration" -v
 
 # Run with coverage report
 
@@ -92,12 +96,22 @@ pytest --cov=tools --cov=app --cov-report=term-missing
 
 pytest tests/test_tools.py -v
 
-Best Practices for Testing This Project
+# Run a specific test function
 
-- Mock External Dependencies: Always mock YouTube API and OpenAI API calls
-- Test File Operations: Use tmp_path fixture for file operations
-- Parameterize Tests: Use @pytest.mark.parametrize for testing different bullet point counts
-- Test Error Handling: Ensure your app gracefully handles errors
-- Separate Unit and Integration Tests: Use markers to separate test types
-- Test UI Components: Test Gradio components where possible
-- Use Coverage Reports: Aim for high test coverage of your core functions
+pytest tests/test_tools.py::test_create_download_text -v
+
+# Run a specific test class
+
+pytest tests/test_tools.py::TestClass -v
+
+# Run a specific test method in a class
+
+pytest tests/test_tools.py::TestClass::test_method -v
+
+# Run tests with specific markers
+
+pytest -m "marker_name" -v
+
+# Run tests matching a keyword expression
+
+pytest -k "download" -v # Runs all tests with "download" in their names
